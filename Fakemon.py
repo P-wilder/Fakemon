@@ -43,8 +43,8 @@ class Pokemon:
         return """{name} is level {level} and is a {type} type. 
 They currently have {hp} hp, {attack} attack, and {defense} defense.
 Their moves are: 
-{a}     {b} 
-{c}     {d}""".format(name=self.name, level=self.level, type=self.type,
+    {a}     {b} 
+    {c}     {d}""".format(name=self.name, level=self.level, type=self.type,
                       hp=self.hp, attack=self.attackstat, defense=self.defensestat, a=self.moveset[0],
                       b=self.moveset[1], c=self.moveset[2], d=self.moveset[3])
 
@@ -81,7 +81,7 @@ Their moves are:
             return
         attacks = ["Lick", "Tackle", "Defense Curl", "Thunder Shock",
                    "Tail Whip", "Sing", "Pound", "Growl", "Life Dew",
-                   "Counter", "Splash", "Charm",
+                   "Counter", "Splash", "Charm", "Sweet Kiss",
                    "Water Gun", "Smog", "Ember", "Leer", "Lick",
                    "Confusion", "Rock Throw", "Fake Tears", "Flail",
                    "Thunder Shock", "Quick Attack"]
@@ -115,21 +115,21 @@ Please pick a move: """.format(a=self.moveset[0], b=self.moveset[1], c=self.move
             return
         attacks = ["Lick", "Tackle", "Defense Curl", "Thunder Shock",
                        "Tail Whip", "Sing", "Pound", "Growl", "Life Dew",
-                       "Counter", "Splash", "Charm", "Sweet Kiss"
+                       "Counter", "Splash", "Charm", "Sweet Kiss",
                        "Water Gun", "Smog", "Ember", "Leer", "Lick",
                        "Confusion", "Rock Throw", "Fake Tears", "Flail",
                        "Thunder Shock", "Quick Attack"]
         move = input("""{name} moves are
     {a}      {b}
     {c}      {d}
-    Please pick a move: """.format(a=self.moveset[0], b=self.moveset[1], c=self.moveset[2], d=self.moveset[3],
+Please pick a move: """.format(a=self.moveset[0], b=self.moveset[1], c=self.moveset[2], d=self.moveset[3],
                                    name=self.name))
         while move not in self.moveset:
             move = input("""
-    Please pick a valid move
+Please pick a valid move
     {a}      {b}
     {c}      {d}
-    Please pick a move: """.format(a=self.moveset[0], b=self.moveset[1], c=self.moveset[2], d=self.moveset[3],
+Please pick a move: """.format(a=self.moveset[0], b=self.moveset[1], c=self.moveset[2], d=self.moveset[3],
                                    name=self.name))
         if move not in attacks:
             print("That's not a valid attack!")
@@ -168,7 +168,7 @@ class Trainer:
         if new_pokemon in self.pokemonTeam:
             print("You picked {pokemon}".format(pokemon=new_pokemon))
             for pokemon in self.pokemonTeam:
-                if new_pokemon == pokemon:
+                if new_pokemon == pokemon.name:
                     return
                 else:
                     self.current_pokemon += 1
@@ -178,14 +178,20 @@ class Trainer:
             pokemon.getKnockedOut()
 
     def attackOtherTrainer(self, other_trainer):
-        my_pokemon = self.pokemonTeam[self.current_pokemon]
-        opponents_pokemon = other_trainer.pokemonTeam[other_trainer.current_pokemon]
-        my_pokemon.attackOpponent(opponents_pokemon)
+        if other_trainer.pokemonTeam[other_trainer.current_pokemon].knockedOut == False:
+            my_pokemon = self.pokemonTeam[self.current_pokemon]
+            opponents_pokemon = other_trainer.pokemonTeam[other_trainer.current_pokemon]
+            my_pokemon.attackOpponent(opponents_pokemon)
+        else:
+            return
 
     def cpuAttack(self, playerTrainer):
-        my_pokemon = self.pokemonTeam[self.current_pokemon]
-        opponents_pokemon = playerTrainer.pokemonTeam[playerTrainer.current_pokemon]
-        my_pokemon.cpuAttackOpponent(opponents_pokemon)
+        if len(playerTrainer.pokemonTeam) > 0:
+            my_pokemon = self.pokemonTeam[self.current_pokemon]
+            opponents_pokemon = playerTrainer.pokemonTeam[playerTrainer.current_pokemon]
+            my_pokemon.cpuAttackOpponent(opponents_pokemon)
+        else:
+            return
 
 
 Munchlax = Pokemon("Munchlax", "normal")
@@ -230,32 +236,30 @@ def battle():
                     adding_index += 1
         else:
             print("Please select a valid pokemon")
-    while len(player.pokemonTeam) != 0 or len(cpu.pokemonTeam) != 0:
-        if player.pokemonTeam[player.current_pokemon].knockedOut == True:
-            if len(player.pokemonTeam) > 0:
-                player.pokemonTeam.pop(player.current_pokemon)
-                player.switchPokemon()
+    while (len(player.pokemonTeam) > 0) or (len(cpu.pokemonTeam) > 0):
+        if len(player.pokemonTeam) > 0:
+            if player.pokemonTeam[player.current_pokemon].knockedOut == True:
+                if len(player.pokemonTeam) > 0:
+                    player.pokemonTeam.pop(player.current_pokemon)
+                    player.switchPokemon()
+                else:
+                    return
+            else:
                 player.attackOtherTrainer(cpu)
-            else:
-                return
-        elif cpu.pokemonTeam[cpu.current_pokemon].knockedOut == True:
-            if len(cpu.pokemonTeam) > 0:
-                cpu.pokemonTeam.pop(cpu.current_pokemon)
-                cpu.current_pokemon = rn.randint(0, len(cpu.pokemonTeam))
-            else:
-                return
         else:
-            player.attackOtherTrainer(cpu)
-        if cpu.pokemonTeam[cpu.current_pokemon].knockedOut == True:
-            if len(cpu.pokemonTeam) > 0:
-                cpu.pokemonTeam.pop(cpu.current_pokemon)
-                cpu.current_pokemon = rn.randint(0, (len(cpu.pokemonTeam) - 1))
+            return
+        if len(cpu.pokemonTeam) > 0:
+            if cpu.pokemonTeam[cpu.current_pokemon].knockedOut == True:
+                if len(cpu.pokemonTeam) > 0:
+                    cpu.pokemonTeam.pop(cpu.current_pokemon)
+                    cpu.current_pokemon = rn.randint(0, len(cpu.pokemonTeam))
+                else:
+                    return
+            else:
                 cpu.cpuAttack(player)
-            else:
-                return
         else:
-            cpu.cpuAttack(player)
-    if player.pokemonTeam == []:
+            return
+    if player.pokemonTeam == [] :
         print("Sorry you lost :(")
     else:
         print("You win!!!")
