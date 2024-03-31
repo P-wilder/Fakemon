@@ -237,11 +237,15 @@ def battle():
         else:
             print("Please select a valid pokemon")
     while (len(player.pokemonTeam) > 0) or (len(cpu.pokemonTeam) > 0):
-        if len(player.pokemonTeam) > 0:
+        if (len(player.pokemonTeam) > 0) and (len(cpu.pokemonTeam) >0):
             if player.pokemonTeam[player.current_pokemon].knockedOut == True:
                 if len(player.pokemonTeam) > 0:
                     player.pokemonTeam.pop(player.current_pokemon)
                     player.switchPokemon()
+                if cpu.pokemonTeam[cpu.current_pokemon].knockedOut == True:
+                    if len(cpu.pokemonTeam) > 0:
+                        cpu.pokemonTeam.pop(cpu.current_pokemon)
+                        cpu.current_pokemon = rn.randint(0, len(cpu.pokemonTeam))
                 else:
                     return
             else:
@@ -259,6 +263,7 @@ def battle():
                 cpu.cpuAttack(player)
         else:
             return
+    print(player.pokemonTeam)
     if player.pokemonTeam == [] :
         print("Sorry you lost :(")
     else:
